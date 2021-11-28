@@ -169,7 +169,7 @@ Kii.Screen = function (template) {
     this.handleInput = template.handleInput || function (input) {
         console.log(`Event: ${input[0]}, Code: ${input[1]}`)
     }
-    this.update = template.update || function (graphics, audio, input) {
+    this.update = template.update || function (timestep, input, audioEngine, graphicsEngine) {
         // Placeholder text
         console.log("Updated the frame but there's nothing here!")
     }
