@@ -1,2 +1,2 @@
 # kii
-A simple JS framework for making games!
+Lightweight 2D game engine for JS/HTML5!
