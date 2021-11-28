@@ -1,2 +1,2 @@
 # kii
-A simple JS framework for making games
+A simple JS framework for making games!
