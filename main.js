@@ -1,6 +1,6 @@
 var Kii = {
     _author: "Kathrine Lemet",
-    _version: 'alpha_1.0.0',
+    _version: 'alpha_1.1.0',
     _description: "Lightweight 2D engine for JS/HTML5",
 
     Enums: {
@@ -242,8 +242,12 @@ var Kii = {
         }
     },
 
-    initialize: function () {
+    initialize: function (fps, updateFunction) {
         Object.freeze(this.Enums)
+
+        setInterval(() => {
+            updateFunction(1)
+        }, 1000 / fps)        
     }
 
 }
