@@ -275,5 +275,37 @@ Kii.Graphics = function (display, width, height) {
         this.drawText("Mouse X: " + inputs.Mouse._x + " Mouse Y: " + inputs.Mouse._y, 10, 16);
         this.drawText("Keys Pressed: " + JSON.stringify(inputs.Keyboard.returnPressedKeys()), 10, 32);
         this.drawText("Mouse Buttons Pressed: " + JSON.stringify(inputs.Mouse.returnPressedButtons()), 10, 48);
+    }    // Vector Graphics!
+    this.drawLine = function (x1, y1, x2, y2, color = "Red", width = 1) {
+        this.Context.beginPath()
+        this.Context.lineWidth = width
+        this.Context.strokeStyle = color
+
+        this.Context.moveTo(x1, y1)
+        this.Context.lineTo(x2, y2)
+
+        this.Context.stroke()
+    }
+    this.drawVertices = function (vertices, fillColor = "Blue", borderColor = false, borderWidth = 1, closed = true) {
+        this.Context.beginPath()
+        this.Context.moveTo(vertices[0][0], vertices[0][1])
+        for (var v = 1; v < vertices.length; v++) {
+            let [x, y] = vertices[v]
+            this.Context.lineTo(x, y)
+        }
+        if (closed) {
+            this.Context.closePath()
+        }
+        // Fill in the shape
+        if (fillColor) {
+            this.Context.fillStyle = fillColor
+            this.Context.fill()
+        }
+        // Draw the border over it
+        if (borderColor) {
+            this.Context.strokeStyle = borderColor
+            this.Context.lineWidth = borderWidth
+            this.Context.stroke()
+        }
     }
 }
