@@ -275,7 +275,8 @@ Kii.Graphics = function (display, width, height) {
         this.drawText("Mouse X: " + inputs.Mouse._x + " Mouse Y: " + inputs.Mouse._y, 10, 16);
         this.drawText("Keys Pressed: " + JSON.stringify(inputs.Keyboard.returnPressedKeys()), 10, 32);
         this.drawText("Mouse Buttons Pressed: " + JSON.stringify(inputs.Mouse.returnPressedButtons()), 10, 48);
-    }    // Vector Graphics!
+    }    
+    // Vector Graphics!
     this.drawLine = function (x1, y1, x2, y2, color = "Red", width = 1) {
         this.Context.beginPath()
         this.Context.lineWidth = width
