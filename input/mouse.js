@@ -57,7 +57,7 @@ Kii.Mouse = function () {
         console.log("Check the MouseCode Enum, the Button name you used doesn't exist!");
     }
     // Returns an array [x, y] of the current mouse position
-    this.checkCursorLocation = function () {
+    this.getCursorLocation = function () {
         return [this._x, this._y]
     }
     // Return an array of all pressed button names
