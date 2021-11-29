@@ -1,6 +1,6 @@
 var Kii = {
     _author: "Kathrine Lemet",
-    _version: 'alpha_1.1.0',
+    _version: 'alpha_1.2.0',
     _description: "Lightweight 2D engine for JS/HTML5",
 
     Enums: {
