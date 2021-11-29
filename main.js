@@ -244,7 +244,7 @@ var Kii = {
 
     initialize: function (fps, updateFunction) {
         Object.freeze(this.Enums)
-
+        // Event Loop
         setInterval(() => {
             updateFunction(1)
         }, 1000 / fps)        
