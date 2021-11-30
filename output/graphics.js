@@ -275,6 +275,9 @@ Kii.Graphics = function (display, width, height) {
         this.drawText("Mouse X: " + inputs.Mouse._x + " Mouse Y: " + inputs.Mouse._y, 10, 16);
         this.drawText("Keys Pressed: " + JSON.stringify(inputs.Keyboard.returnPressedKeys()), 10, 32);
         this.drawText("Mouse Buttons Pressed: " + JSON.stringify(inputs.Mouse.returnPressedButtons()), 10, 48);
+        this.drawText(`Gamepad LS: [${Math.round(inputs.Gamepad.LeftStick._x * 100) / 100}, ${Math.round(inputs.Gamepad.LeftStick._y * 100) / 100} | RS: [${Math.round(inputs.Gamepad.RightStick._x * 100) / 100}, ${Math.round(inputs.Gamepad.RightStick._y * 100) / 100}] | LT: ${Math.round(inputs.Gamepad.LeftTrigger * 100) / 100} | RT: ${Math.round(inputs.Gamepad.RightTrigger * 100) / 100}`, 10, 64);
+        this.drawText(`Gamepad Buttons Pressed: ${inputs.Gamepad.getButtonsPressed()}`, 10, 80);
+        this.drawText(`Dpad L: ${inputs.Gamepad.Dpad._left} R: ${inputs.Gamepad.Dpad._right} U: ${inputs.Gamepad.Dpad._up} D: ${inputs.Gamepad.Dpad._down}`, 10, 96)
     }    
     // Vector Graphics!
     this.drawLine = function (x1, y1, x2, y2, color = "Red", width = 1) {

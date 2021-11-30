@@ -1,9 +1,15 @@
 var Kii = {
     _author: "Kathrine Lemet",
-    _version: 'alpha_1.2.0',
+    _version: 'alpha_1.3.0',
     _description: "Lightweight 2D engine for JS/HTML5",
 
     Enums: {
+        Direction: {
+            Down: "Down",
+            Up: "Up",
+            Left: "Left",
+            Right: "Right",
+        },
         AlignX: {
             Before: "Before",
             Left: "Left",
@@ -239,6 +245,58 @@ var Kii = {
             LMB: "LMB",
             RMB: "RMB",
             MMB: "MMB"
+        },
+        GamepadEvents: {
+            ButtonPress: "Gamepad Button Pressed",
+            ButtonRelease: "Gamepad Button Released",
+
+            LeftStickMove: "Left Stick Moved",
+            RightStickMove: "Right Stick Moved",
+
+            LeftTriggerMove: "Left Trigger Moved",
+            RightTriggerMove: "Right Trigger Moved",
+
+            DpadPress: "Dpad Pressed",
+            DpadRelease: "Dpad Released"
+        },
+        ButtonCode: {
+            // For Xbox Controllers
+            A: "A",
+            B: "B",
+            X: "X",
+            Y: "Y",
+            
+            LB: "LB",
+            RB: "RB",
+
+            Select: "Select",
+            Start:  "Start",
+
+            LS: "LS",
+            RS: "RS",
+            // For Playstation Controllers
+            Cross:    "A",
+            Circle:   "B",
+            Square:   "X",
+            Triangle: "Y",
+
+            L1: "LS",
+            R1: "RS",
+            
+            L3: "LS",
+            R3: "RS",
+
+            // Default Values
+            _0: "A",
+            _1: "B",
+            _2: "X",
+            _3: "Y",
+            _4: "LB",
+            _5: "RB",
+            _6: "Select",
+            _7: "Start",
+            _9: "LS",
+            _10: "RS"
         }
     },
 
