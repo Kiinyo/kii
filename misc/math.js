@@ -203,7 +203,9 @@ Kii.Math = {
         },
         // Returns an array of vertices with the corresponding rotation applied
         rotate: function (vertices, degree, center) {
-            degree = degree || 5
+            if (degree == 0) {
+                return JSON.parse(JSON.stringify(vertices))
+            }
             center = center || Kii.Math.Vertex.getCenter(vertices)
             let newVert = []
             for (var v = 0; v < vertices.length; v++) {
