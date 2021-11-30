@@ -38,7 +38,7 @@ Kii.Keyboard = function () {
     // Setting up the keycode array
     this.initialize = function (handleInput) {
         // Generating the Array because I'm not doing it by hand
-        for (x = 0; x < 405; x++) {
+        for (var x = 0; x < 405; x++) {
             this.Held.push(false);
         }
         // Passing this to a variable because idk how to do it otherwise
