@@ -15,6 +15,15 @@ Kii.Math = {
                 return 1
         }
     },
+    // rounds down if positive, rounds up if negative
+    floor: function (n) {
+        if (n > 0) {
+            Math.floor(n)
+        } else {
+            Math.ceil(n)
+        }
+        return n
+    },
     getElementDimensions: function (container, element) {
         let width = 0
         let x = 0
@@ -103,6 +112,11 @@ Kii.Math = {
     isInsideArea: function (x, y, objectX, objectY, objectWidth, objectHeight) {
         return ((x >= objectX && x <= objectX + objectWidth) &&
                 (y >= objectY && y <= objectY + objectHeight))
+    },
+    applyToAll: function (target, theFunction) {
+        for (var t = 0; t < target.length; t++) {
+            theFunction(target[t])
+        }
     },
     Vertex: {
         // Primarily a helper function, returns the [[x,y],[x1,y1]] of a line through the diagonal
@@ -202,6 +216,12 @@ Kii.Math = {
                 newVert[v] = Kii.Math.Vertex.translate(center[0], center[1], angle, distance)
             }
             return newVert
+        },
+        // Returns [angle, magnitude]
+        addVectors: function (ang1, mag1, ang2, mag2) {
+            let [a,b] = Kii.Math.Vertex.translate(0,0,ang1,mag1)
+            let [c,d] = Kii.Math.Vertex.translate(a, b, ang2, mag2)
+            return [Kii.Math.Vertex.calculateAngle(0,0,c,d), Kii.Math.Vertex.calculateDistance(0,0,c,d)]
         }
     }
 }
