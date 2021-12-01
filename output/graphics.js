@@ -280,13 +280,13 @@ Kii.Graphics = function (display, width, height) {
         this.drawText(`Dpad L: ${inputs.Gamepad.Dpad._left} R: ${inputs.Gamepad.Dpad._right} U: ${inputs.Gamepad.Dpad._up} D: ${inputs.Gamepad.Dpad._down}`, 10, 96)
     }    
     // Vector Graphics!
-    this.drawLine = function (x1, y1, x2, y2, color = "Red", width = 1) {
+    this.drawLine = function (p1, p2, color = "Red", width = 1) {
         this.Context.beginPath()
         this.Context.lineWidth = width
         this.Context.strokeStyle = color
 
-        this.Context.moveTo(x1, y1)
-        this.Context.lineTo(x2, y2)
+        this.Context.moveTo(p1[0], p1[1])
+        this.Context.lineTo(p2[0], p2[1])
 
         this.Context.stroke()
     }

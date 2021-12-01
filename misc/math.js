@@ -170,36 +170,37 @@ Kii.Math = {
                 diagonal[0][1] + Math.floor((diagonal[1][1] - diagonal[0][1]) / 2),
             ]
         },
-        // Returns the length between two points
-        calculateDistance: function (x1, y1, x2, y2) {
-            return (Math.sqrt(Math.pow(Math.abs(x2 - x1), 2) + Math.pow(Math.abs(y2 - y1), 2)))
+        // Returns the length between two points (Always positive)
+        calculateDistance: function (p1, p2) {
+            return (Math.sqrt(Math.pow(Math.abs(p2[0] - p1[0]), 2) + Math.pow(Math.abs(p2[1] - p1[1]), 2)))
         },
         // Returns the angle between two points
-        calculateAngle: function (x1, y1, x2, y2) {
+        calculateAngle: function (p1, p2) {
             let mod = 0
-            if (x2 < x1) {
+            if (p2[0] < p1[0]) {
                 mod = 180
-            } else if (x1 == x2) {
+            } else if (p1[0] == p2[0]) {
                 // let's not divide by zero
-                if (y1 == y2) {
+                if (p1[1] == p2[1]) {
                     return 0
-                } else if (y1 < y2) {
+                } else if (p1[1] < p2[1]) {
                     return 90
                 } else {
                     return -90
                 }
             }
-            return Math.round(Math.atan((y2 - y1)/(x2 - x1)) * 180 / Math.PI) + mod
+            return (Math.atan((p2[1] - p1[1])/(p2[0] - p1[0])) * 180 / Math.PI) + mod
         },
         // Returns [x, y] after it's been moved by an magnitude at a defined angle
-        translate: function (x, y, angle, magnitude) {
+        translate: function (p, vector) {
+            let [angle, magnitude] = vector
             let sign = 1
             if (Math.abs(angle % 360) > 90 && Math.abs(angle % 360) < 270) {
                 sign = -1
             }
             let o = magnitude * Math.sin(angle * Math.PI / 180)
             let a = Math.sqrt(Math.pow(magnitude, 2) - Math.pow(o, 2))
-            return [x + (a * sign), y + o]
+            return [p[0] + (a * sign), p[1] + o]
         },
         // Returns an array of vertices with the corresponding rotation applied
         rotate: function (vertices, degree, center) {
@@ -211,19 +212,21 @@ Kii.Math = {
             for (var v = 0; v < vertices.length; v++) {
                 newVert.push([])
                 // Figure out how far it is from the center
-                let distance = Kii.Math.Vertex.calculateDistance(center[0], center[1], vertices[v][0], vertices[v][1])
+                let distance = Kii.Math.Vertex.calculateDistance(center, vertices[v])
                 // Figure out it's angle from the center
-                let angle = Kii.Math.Vertex.calculateAngle(center[0], center[1], vertices[v][0], vertices[v][1]) + degree
+                let angle = Kii.Math.Vertex.calculateAngle(center, vertices[v]) + degree
                 // Move it based on the angle
-                newVert[v] = Kii.Math.Vertex.translate(center[0], center[1], angle, distance)
+                newVert[v] = Kii.Math.Vertex.translate(center, [angle, distance])
             }
             return newVert
         },
         // Returns [angle, magnitude]
-        addVectors: function (ang1, mag1, ang2, mag2) {
-            let [a,b] = Kii.Math.Vertex.translate(0,0,ang1,mag1)
-            let [c,d] = Kii.Math.Vertex.translate(a, b, ang2, mag2)
-            return [Kii.Math.Vertex.calculateAngle(0,0,c,d), Kii.Math.Vertex.calculateDistance(0,0,c,d)]
+        addVectors: function (vec1, vec2) {
+            let [ang1, mag1] = vec1
+            let [ang2, mag2] = vec2
+            let [a,b] = Kii.Math.Vertex.translate([0,0],[ang1,mag1])
+            let [c,d] = Kii.Math.Vertex.translate([a, b], [ang2, mag2])
+            return [Kii.Math.Vertex.calculateAngle([0,0],[c,d]), Kii.Math.Vertex.calculateDistance([0,0],[c,d])]
         }
     }
 }
