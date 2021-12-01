@@ -72,6 +72,7 @@ Kii.Mouse = function () {
     }
     // Setting up the mouse
     this.initialize = function (handleInput, display) {
+        handleInput = handleInput || function () { }
         // Transfering this because idk how to do it otherwise
         let self = this
         // Binding HTML5 events to the Kii engine
