@@ -1,4 +1,12 @@
 Kii.Math = {
+    // Returns a number corresponding to how far along
+    // something should be given the type of ease, and
+    // the ratio (r) of how far it is. 
+    //
+    // (r = 0.75 means where it should be 3 seconds 
+    // into a 4 second ease)
+    //
+    // fn (type: Kii.Enums.Ease, r: float) -> float
     ease: function (type, r) {
         switch (type) {
             // Linear
@@ -15,7 +23,9 @@ Kii.Math = {
                 return 1
         }
     },
-    // rounds down if positive, rounds up if negative
+    // Rounds down if positive, up if negative
+    //
+    // fn (n: float) -> float
     floor: function (n) {
         if (n > 0) {
             Math.floor(n)
@@ -24,209 +34,155 @@ Kii.Math = {
         }
         return n
     },
-    getElementDimensions: function (container, element) {
-        let width = 0
-        let x = 0
-        let height = 0
-        let y = 0
-
-        // A bit of finagling to set the right values
-        if (element._relative)  {
-            // Get the width
-            width = Math.floor(container._width * element._width)
-            // and the height
-            height = Math.floor(container._height * element._height)
-            // Then the x
-            switch (element._xAlign) {
-                // Before
-                case Kii.Enums.AlignX.Before:
-                    x = container._x - width + 
-                        Math.floor(element._xOffset * container._width)
-                    break;
-                // Left
-                case Kii.Enums.AlignX.Left:   
-                    x = container._x + 
-                        Math.floor(element._xOffset * container._width)
-                    break;
-                // Center
-                case Kii.Enums.AlignX.Center:  
-                    x = container._x + Math.floor(container._width / 2) - Math.floor (width / 2) +
-                        Math.floor(element._xOffset * container._width)              
-                    break;
-                // Right
-                case Kii.Enums.AlignX.Right:    
-                    x = container._x + container._width - width +
-                        Math.floor(element._xOffset * container._width)             
-                    break;
-                // After
-                case Kii.Enums.AlignX.After:
-                    x = container._x + container._width +
-                        Math.floor(element._xOffset * container._width)              
-                    break;
-            
-                default:
-                    console.log("Invalid Alignment, check the Enums!")
-                    break;
-            }
-            // Finally the y
-            switch (element._yAlign) {
-                // Above
-                case Kii.Enums.AlignY.Above:
-                    y = container._y - height + 
-                        Math.floor(element._yOffset * container._height)
-                    break;
-                // Up
-                case Kii.Enums.AlignY.Up:   
-                    y = container._y + 
-                        Math.floor(element._yOffset * container._height)
-                    break;
-                // Center
-                case Kii.Enums.AlignY.Center:
-                    y = container._y + Math.floor(container._height / 2) - Math.floor(height / 2) +
-                        Math.floor(element._yOffset * container._height)
-                    break;
-                // Down
-                case Kii.Enums.AlignY.Down:    
-                    y = container._y + container._height - height +
-                        Math.floor(element._yOffset * container._height)             
-                    break;
-                // Below
-                case Kii.Enums.AlignY.Below:
-                    y = container._y + container._height +
-                        Math.floor(element._yOffset * container._height)              
-                    break;
-            
-                default:
-                    console.log("Invalid Alignment, check the Enums!")
-                    break;
-            }
+    // Rounds up if positive, down if negative
+    //
+    // fn (n: float) -> float
+    ceil: function (n) {
+        if (n > 0) {
+            Math.ceil(n)
         } else {
-            width = element._width
-            height = element._height
-            x = element._xOffset
-            y = element._yOffset
+            Math.floors(n)
         }
-
-        return [x, y, width, height]
+        return n
     },
     isInsideArea: function (x, y, objectX, objectY, objectWidth, objectHeight) {
         return ((x >= objectX && x <= objectX + objectWidth) &&
                 (y >= objectY && y <= objectY + objectHeight))
     },
-    applyToAll: function (target, theFunction) {
-        for (var t = 0; t < target.length; t++) {
-            theFunction(target[t])
-        }
-    },
-    Vertex: {
-        // Primarily a helper function, returns the [[x,y],[x1,y1]] of a line through the diagonal
-        // of a bounding box around the form from top left to bottom right assuming + is right and down 
-        getDiagonal: function (vertices) {
-            let diagonal = [
-                [vertices[0][0], vertices[0][1]],
-                [vertices[0][0], vertices[0][1]]
-            ]
+    // This submodule covers common vector manipulations
+    Vector: {
+        // fn (x: float, y: float) -> Vector
+        Vector: function (x = 0, y = 0) {
+            this.x = x
+            this.y = y
+        },
+        // Takes in a angle (in degrees) and a magnitude and constructs
+        // a vector from it.
+        // fn (degree: float, magnitude: float) -> Vector
+        constructVector: function (degree = 0, magnitude = 0) {
+            let x = Math.cos(degree * Math.PI / 180) * magnitude
+            let y = Math.sin(degree * Math.PI / 180) * magnitude
+            return new Kii.Math.Vector.Vector(x, y)
+        },
+        // Returns the angle of the vector in degrees (0 to <360)
+        // fn ( vector: Vector ) -> float
+        getAngle: function (vector = {x: 0, y: 0}) {
+            let rawAngle = Math.atan2(Math.abs(vector.y), Math.abs(vector.x)) * 180 / Math.PI
 
-            for (var v = 0; v < vertices.length; v++) {
-                diagonal[0] = [
-                    Math.min(diagonal[0][0], vertices[v][0]),
-                    Math.min(diagonal[0][1], vertices[v][1])
-                ]
-                diagonal[1] = [
-                    Math.max(diagonal[1][0], vertices[v][0]),
-                    Math.max(diagonal[1][1], vertices[v][1])
-                ]
-            }
-            return diagonal
-        },
-        // Returns an array of vertices [x, y] that make a box that enclose the form
-        getBoundingBox: function (vertices) {
-            let diagonal = Kii.Math.Vertex.getDiagonal(vertices)
-            // 0-----1
-            // |     |
-            // 3-----2
-            return [
-                [diagonal[0][0],diagonal[0][1]],
-                [diagonal[1][0],diagonal[0][1]],
-                [diagonal[1][0],diagonal[1][1]],
-                [diagonal[0][0],diagonal[1][1]]
-            ]
-        },
-        // Returns [width, height] of an array of vertices
-        getDimensions: function (vertices) {
-            let diagonal = Kii.Math.Vertex.getDiagonal(vertices)
-            return [
-                diagonal[1][0] - diagonal[0][0],
-                diagonal[1][1] - diagonal[0][1]
-            ]
-
-        },
-        // Returns the [x, y] of the center of a BB around a group of verts
-        getCenter: function (vertices) {
-            let diagonal = Kii.Math.Vertex.getDiagonal(vertices)
-
-            return [
-                diagonal[0][0] + Math.floor((diagonal[1][0] - diagonal[0][0]) / 2),
-                diagonal[0][1] + Math.floor((diagonal[1][1] - diagonal[0][1]) / 2),
-            ]
-        },
-        // Returns the length between two points (Always positive)
-        calculateDistance: function (p1, p2) {
-            return (Math.sqrt(Math.pow(Math.abs(p2[0] - p1[0]), 2) + Math.pow(Math.abs(p2[1] - p1[1]), 2)))
-        },
-        // Returns the angle between two points
-        calculateAngle: function (p1, p2) {
-            let mod = 0
-            if (p2[0] < p1[0]) {
-                mod = 180
-            } else if (p1[0] == p2[0]) {
-                // let's not divide by zero
-                if (p1[1] == p2[1]) {
-                    return 0
-                } else if (p1[1] < p2[1]) {
-                    return 90
+            if (vector.x >= 0) {
+                // x is positive
+                if (vector.y >= 0) {
+                    // y is positive
+                    return rawAngle
                 } else {
-                    return -90
+                    // y is negative
+                    return 360 - rawAngle
+                }
+            } else {
+                // x is negative
+                if (vector.y >= 0) {
+                    // y is positive
+                    return 180 - rawAngle
+                } else {
+                    return 180 + rawAngle
                 }
             }
-            return (Math.atan((p2[1] - p1[1])/(p2[0] - p1[0])) * 180 / Math.PI) + mod
         },
-        // Returns [x, y] after it's been moved by an magnitude at a defined angle
-        translate: function (p, vector) {
-            let [angle, magnitude] = vector
-            let sign = 1
-            if (Math.abs(angle % 360) > 90 && Math.abs(angle % 360) < 270) {
-                sign = -1
-            }
-            let o = magnitude * Math.sin(angle * Math.PI / 180)
-            let a = Math.sqrt(Math.pow(magnitude, 2) - Math.pow(o, 2))
-            return [p[0] + (a * sign), p[1] + o]
+        // Returns the magnitude of a vector
+        // fn ( vector: Vector ) -> float 
+        getMagnitude: function (vector = {x: 0, y: 0}) {
+            return Math.sqrt(Math.pow(vector.x, 2) + Math.pow(vector.y, 2))
         },
-        // Returns an array of vertices with the corresponding rotation applied
-        rotate: function (vertices, degree, center) {
-            if (degree == 0) {
-                return JSON.parse(JSON.stringify(vertices))
+        // Returns a new vector after applying a rotation
+        // fn ( vector: Vector, degree: float) -> Vector
+        getRotation: function (vector = { x: 0, y: 0 }, degree = 0) {
+            degree += Kii.Math.Vector.getAngle(vector)
+            if (degree < 0) {
+                // I dunno how % plays with negative numbers
+                // not even going to bother with Javascript
+                degree = 360 - (degree * -1 % 360)
             }
-            center = center || Kii.Math.Vertex.getCenter(vertices)
-            let newVert = []
-            for (var v = 0; v < vertices.length; v++) {
-                newVert.push([])
-                // Figure out how far it is from the center
-                let distance = Kii.Math.Vertex.calculateDistance(center, vertices[v])
-                // Figure out it's angle from the center
-                let angle = Kii.Math.Vertex.calculateAngle(center, vertices[v]) + degree
-                // Move it based on the angle
-                newVert[v] = Kii.Math.Vertex.translate(center, [angle, distance])
-            }
-            return newVert
+            let magnitude = Kii.Math.Vector.getMagnitude(vector)
+
+            console.log(degree)
+
+            return Kii.Math.Vector.constructVector(degree, magnitude)
         },
-        // Returns [angle, magnitude]
-        addVectors: function (vec1, vec2) {
-            let [ang1, mag1] = vec1
-            let [ang2, mag2] = vec2
-            let [a,b] = Kii.Math.Vertex.translate([0,0],[ang1,mag1])
-            let [c,d] = Kii.Math.Vertex.translate([a, b], [ang2, mag2])
-            return [Kii.Math.Vertex.calculateAngle([0,0],[c,d]), Kii.Math.Vertex.calculateDistance([0,0],[c,d])]
+        // Returns a vector that is the sum of all vectors in a given array
+        // fn ( vectors: [Vector] ) -> Vector
+        sumVectors: function (vectors = [{x: 0, y: 0}]) {
+            let x, y = 0
+
+            for (const vector of vectors) {
+                x += vector.x
+                y += vector.y
+            }
+
+            return new Kii.Math.Vector.Vector(x, y)
+        }
+    },
+    // This submodule covers Shapes formed by Vectors
+    Shape: {
+        // A collection of vectors that define a shape centered around [0,0]
+        // fn (vertices: [Vector]) -> Shape
+        Shape: function (vertices = [{ x: -5, y: 5 }, { x: 5, y: 0 }, { x: -5, y: -5 }]) {
+            this.Vertices = vertices
+            this.position = new Kii.Math.Vector.Vector(0, 0)
+            this.angle = 0
+
+            // Establishing the smallest circle one can draw around
+            // the shape
+            this.radius = Kii.Math.Shape.getRadius(this)
+            // Establish a bounding box
+            this.boundingBox = Kii.Math.Shape.getBoundingBox(this)
+        },
+        // Returns the top left and bottom right of any shape.
+        // fn (shape: Shape) -> [Vector; 2]
+        getDiagonal: function (shape) {
+            let diagonal = [
+                new Kii.Math.Vector.Vector(
+                    shape.Vertices[0].x,
+                    shape.Vertices[0].y
+                    ),
+                new Kii.Math.Vector.Vector(
+                    shape.Vertices[0].x,
+                    shape.Vertices[0].y
+                    )
+            ]
+            for (const vertex of shape.Vertices) {
+                // Get the top left bound
+                diagonal[0].x = Math.min(diagonal[0].x, vertex.x)
+                diagonal[0].y = Math.min(diagonal[0].y, vertex.y)
+                // Get the bottom right bound
+                diagonal[1].x = Math.max(diagonal[1].x, vertex.x)
+                diagonal[1].y = Math.max(diagonal[1].y, vertex.y)
+            }
+
+            return diagonal
+        },
+        // Gets the vertices an axis-aligned bounding box for a given Shape
+        // fn (shape: Shape) -> [Vector; 4]
+        getBoundingBox: function (shape) {
+            let diagonal = Kii.Math.Shape.getDiagonal(shape)
+            // For readability
+            let x1 = diagonal[0].x
+            let y1 = diagonal[0].y
+            let x2 = diagonal[1].x
+            let y2 = diagonal[1].y
+
+            return [
+                new Kii.Math.Vector.Vector(x1, y1),
+                new Kii.Math.Vector.Vector(x2, y1),
+                new Kii.Math.Vector.Vector(x2, y2),
+                new Kii.Math.Vector.Vector(x1, y2)
+            ]
+        },
+        // fn (shape: Shape) -> [width: float, height: float]
+        getDimensions: function (shape) {
+            return [
+                shape.boundingBox[1].x - shape.boundingBox[0].x,
+                shape.boundingBox[1].y - shape.boundingBox[0].y
+            ]
         }
     }
 }

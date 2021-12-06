@@ -1,4 +1,4 @@
-Kii.Keyboard = function () {
+Kii.Engine.Keyboard = function () {
     this.Held = [false],
     this.KeyCodes = [
         "null","null","null","null","null","null","null","null",
@@ -35,7 +35,65 @@ Kii.Keyboard = function () {
         "null","null","null","null","null","null","null","null","null","null","null","null","null","null","null","null","null","null","null","null","null","null","null","null","null","null",
         "{","|","}","\""
     ],
-    // Setting up the keycode array
+    this.shiftCheck = function (keyCode) {
+        // Before anything else, check if Shift is even being held
+        if (this.Held[16]) {
+            // If so, only return the modified result if it's a key that can be affected by Shift!
+            if ((keyCode > 47 && keyCode < 91) || (keyCode > 185 && keyCode < 223)) {
+                return keyCode + 180;
+            }
+        }
+        return keyCode;
+    }
+    this.press = function (keyCode) {
+        keyCode = this.shiftCheck(keyCode);
+        this.Held[keyCode] = true;
+        return ["KeyDown", this.KeyCodes[keyCode]];
+    }
+    this.release = function (keyCode) {
+        this.Held[keyCode] = false;
+        if (this.Held[keyCode + 180]) {
+            this.Held[keyCode + 180] = false;
+
+            return [["KeyUp"], this.KeyCodes[keyCode + 180]];
+        }
+        return [["KeyUp"], this.KeyCodes[keyCode]];
+    }
+
+    // Returns the corresponding boolean of whether
+    // or not a key is pressed
+    // 
+    // fn (Kii.Enums.KeyCode) -> boolean
+    this.checkKey = function (key) {
+        let index = this.KeyCodes.indexOf(key);
+        if (index > -1) {
+            return this.Held[keyCode]
+        } else {
+            console.log ("Check the Keys Enum, the Key name you used doesn't exist!")
+            return false;
+        }
+    }
+    // Return an array of all pressed key names
+    // 
+    // fn () -> [Kii.Enums.KeyCode]
+    this.getPressedKeys = function () {
+        let list = [];
+        for (var x = 0; x < this.Held.length; x++) {
+            if (this.Held[x]) {
+                list.push(this.KeyCodes[x])
+            }
+        }
+        return list;
+    }
+    // Setting up the Keyboard. By passing it a
+    // function, you can run code every time an
+    // event takes place asynchronous to your
+    // main update loop if that's something
+    // you want to do. The two arguments that will
+    // be passed to the function is the
+    // Kii.Enums.KeyboardEvents and Kii.Enums.KeyCode
+    // 
+    // fn (handleInput: function(KeyboardEvents, KeyCode))
     this.initialize = function (handleInput) {
         handleInput = handleInput || function () {}
         // Generating the Array because I'm not doing it by hand
@@ -63,52 +121,5 @@ Kii.Keyboard = function () {
         // Mapping inputs
         keyInputs("keydown")
         keyInputs("keyup")
-    }
-    // Returns the appropriate keyCode based on if shift is pressed
-    this.shiftCheck = function (keyCode) {
-        // Before anything else, check if Shift is even being held
-        if (this.Held[16]) {
-            // If so, only return the modified result if it's a key that can be affected by Shift!
-            if ((keyCode > 47 && keyCode < 91) || (keyCode > 185 && keyCode < 223)) {
-                return keyCode + 180;
-            }
-        }
-        return keyCode;
-    }
-    // Returns the name of the key that's been pressed.
-    this.press = function (keyCode) {
-        keyCode = this.shiftCheck(keyCode);
-        this.Held[keyCode] = true;
-        return ["KeyDown", this.KeyCodes[keyCode]];
-    }
-    // Returns the name of the key that's been released
-    this.release = function (keyCode) {
-        this.Held[keyCode] = false;
-        if (this.Held[keyCode + 180]) {
-            this.Held[keyCode + 180] = false;
-
-            return [["KeyUp"], this.KeyCodes[keyCode + 180]];
-        }
-        return [["KeyUp"], this.KeyCodes[keyCode]];
-    }
-    // Returns a boolean depending on if the key is pressed.
-    this.checkKey = function (key) {
-        let index = this.KeyCodes.indexOf(key);
-        if (index > -1) {
-            return this.Held[keyCode]
-        } else {
-            console.log ("Check the Keys Enum, the Key name you used doesn't exist!")
-            return false;
-        }
-    }
-    // Return an array of all pressed key names
-    this.returnPressedKeys = function () {
-        let list = [];
-        for (var x = 0; x < this.Held.length; x++) {
-            if (this.Held[x]) {
-                list.push(this.KeyCodes[x])
-            }
-        }
-        return list;
     }
 }

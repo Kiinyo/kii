@@ -1,30 +1,46 @@
-Kii.Graphics = function (display, width, height) {
-
-    display.width  = width
-    display.height = height
+Kii.Engine.Graphics = function (display) {
     
     this.Display = display;
     this.Context = display.getContext('2d');
 
+    // Clears the screen
+    //
+    // fn ()
     this.clearScreen = function () {
         this.Context.clearRect(0,0, this.Display.width, this.Display.height);
     }
-    // Adds fonts to be used
-    this.loadFonts = function (fonts) {
-        for (var f = 0; f < fonts.length; f++) {
-            let font = new FontFace(fonts[f][0], "url(visual/font/"+fonts[f][1])
-            font.load().then(
-                function (loadedFont) {
-                    document.fonts.add(loadedFont)
-                }
-            ).catch (
-                function (error) {
-                    console.log("Couldn't load font file"+ fonts[f][0])
-                    console.log("Error: " + error)
-                }
-            )
-        }
+    // Loads a font at a given location relative to
+    // the index.html file and assigns it a name to
+    // be referenced later in the drawText function
+    // for instance.
+    //
+    // fn (fontName: string, fontLocation: string)
+    this.loadFont = function (fontName, fontLocation) {
+        let font = new FontFace(fontName, `url(${fontLocation})`)
+        font.load.then(
+            function (loadedFont) {
+                document.fonts.add(loadedFont)
+            }
+        ).catch (
+            function (error) {
+                console.log(`Couldn't load ${fontName} at '${fontLocation}'`)
+                console.log(`Error: ${error}`)
+            }
+        )
     }
+    // This function does a lot, but allows you to draw text
+    // to the screen however you'd like.
+    //
+    // fn (
+    //    text: string, 
+    //    x: float,
+    //    y: float,
+    //    size: float, 
+    //    font: string, 
+    //    color: any valid CanvasRenderingContext2D.fillStyle format,
+    //    alignX: AlignX,
+    //    alignY: AlignY
+    //  )
     this.drawText = function (text, x, y, size, font, color, alignX, alignY) {
         x = x || 10
         y = y || 10
@@ -69,7 +85,21 @@ Kii.Graphics = function (display, width, height) {
         // Draw it!
         this.Context.fillText(text, x, y)
     }
-    // Draws text in a defined bounding box
+    // Draws text in a defined area, wrapping if needed.
+    // Returns any text that could not be displayed.
+    //
+    // fn (
+    //    text: string, 
+    //    x: float,
+    //    y: float,
+    //    width: float,
+    //    height: float,
+    //    size: float, 
+    //    font: string, 
+    //    color: any valid CanvasRenderingContext2D.fillStyle format,
+    //    alignX: AlignX,
+    //    alignY: AlignY
+    //  ) -> string
     this.drawTextBox = function (text, x, y, width, height, font, size, color, alignX, alignY) {
         x = x || 10
         y = y || 10
@@ -187,115 +217,45 @@ Kii.Graphics = function (display, width, height) {
         } else {
             // No wrapping required!
             this.drawText(text, x, y, size, font, color, alignX, alignY)
-            return null
+            return ""
         }
     }
-    // This shouldn't ever really needed to be used in the forward facing API
-    // it's mainly a helper function to power renderContainers
-    this.renderElement = function (container, element) {
-        // First thing's first, let's establish the physical coordinates
-        // of the element on the screen!!
-
-        let [x, y, width, height] = Kii.Math.getElementDimensions(container, element)
-
-        let color = element._bgColor
-
-        // Apply any shaders
-        if (element._shader) {
-            switch (element._shader) {
-                case Kii.Enums.ElementShaders[0]:
-                    color = "White"
-                    break;        
-                default:
-                    break;
-            }
-        }
-
-        this.Context.fillStyle = color
-
-        // Rendering any associated image
-        if (element.Mixins["Image"]) {
-            // If it does, we'll need to draw it to the screen!
-            this.Context.drawImage(element._img, element._imageCropX, element._imageCropY,
-                                    element._imageCropWidth, element._imageCropHeight,
-                                    x, y, width, height)
-                                    
-
-            //if (element._name == "Default's Base") {
-            //    console.log( `${element._imageCropX}, ${element._imageCropY}, ${element._imageCropWidth}, ${element._imageCropHeight}, ${x}, ${y}, ${width}, ${height}`)
-            //}
-
-            // To-Do: Add crop shapes
-        } else {
-            // If it doesn't, we'll need to draw its corresponding shape
-            // and fill it with correct color
-
-            switch (element._shape) {
-                case Kii.Enums.Shapes.Box: 
-                    this.Context.fillRect(
-                        x, y, width, height
-                    )
-                    break
-                
-            }
-        }
-        // Rendering any associated text
-        if (element.Mixins["Text"]) {
-            let text = element._currentText
-
-            this.drawTextBox(text, 
-                x + Math.floor(width * element._textMarginX),
-                y + Math.floor(height * element._textMarginY),
-                width - Math.floor(width * (element._textMarginX * 2)),
-                height - Math.floor(height * (element._textMarginY * 2)),
-                element._textFont, element._textSize, element._fgColor,
-                element._textAlignX, element._textAlignY)
-        }
-
+    // Running this function is a simple way to observe all the current
+    // inputs in real time, helpful for debugging
+    //
+    // fn ()
+    this.displayInputInfo = function () {        
+        this.drawText("Mouse X: " + Kii.Mouse.x + " Mouse Y: " + Kii.Mouse.y, 10, 16);
+        this.drawText("Keys Pressed: " + JSON.stringify(Kii.Keyboard.getPressedKeys()), 10, 32);
+        this.drawText("Mouse Buttons Pressed: " + JSON.stringify(Kii.Mouse.getPressedButtons()), 10, 48);
+        this.drawText(`Gamepad LS: [${Math.round(Kii.Gamepad.LeftStick.x * 100) / 100}, ${Math.round(Kii.Gamepad.LeftStick.y * 100) / 100} | RS: [${Math.round(Kii.Gamepad.RightStick.x * 100) / 100}, ${Math.round(Kii.Gamepad.RightStick.y * 100) / 100}] | LT: ${Math.round(Kii.Gamepad.LeftTrigger * 100) / 100} | RT: ${Math.round(Kii.Gamepad.RightTrigger * 100) / 100}`, 10, 64);
+        this.drawText(`Gamepad Buttons Pressed: ${Kii.Gamepad.getButtonsPressed()}`, 10, 80);
+        this.drawText(`Dpad L: ${Kii.Gamepad.Dpad.left} R: ${Kii.Gamepad.Dpad.right} U: ${Kii.Gamepad.Dpad.up} D: ${Kii.Gamepad.Dpad.down}`, 10, 96)
     }
-    // Throw a Screen's containers into here and it'll do the rest
-    this.renderContainers = function (containers) {
-        // First we cycle through all the containers
-        for (var i = 0; i < containers.length; i++) {
-            // Then we assign a container we're currently working with
-            let container = containers[i]
-            for (var j = 0; j < container.Elements.length; j++) {
-                // The element we're currently on
-                let element = container.Elements[j];
-                // And then render it!
-                this.renderElement(container, element);
-            }
-
-        }
+    this.debugVectorOverlay = function () {
+        let distance = Math.round(Kii.Math.Vector.getMagnitude({ x: Kii.Mouse.x - 300, y: Kii.Mouse.y - 300 }))
+        let spinner = Kii.Math.Vector.getRotation({x: 100, y:0}, distance)
+        this.drawLine({ x: 300, y: 300 }, Kii.Mouse, "blue")
+        this.drawLine(Kii.Mouse, {x: spinner.x + Kii.Mouse.x, y: spinner.y + Kii.Mouse.y})
+        this.drawText(`Angle: ${Math.round(Kii.Math.Vector.getAngle({ x: Kii.Mouse.x - 300, y: Kii.Mouse.y - 300 }))}`, Kii.Mouse.x, Kii.Mouse.y)
+        this.drawText(`Distance: ${distance}`, Kii.Mouse.x, Kii.Mouse.y + 16)
     }
-    this.renderScreen = function (screen) {
-        this.renderContainers(screen.Containers);
-    }
-    this.displayInputInfo = function (inputs) {        
-        this.drawText("Mouse X: " + inputs.Mouse._x + " Mouse Y: " + inputs.Mouse._y, 10, 16);
-        this.drawText("Keys Pressed: " + JSON.stringify(inputs.Keyboard.returnPressedKeys()), 10, 32);
-        this.drawText("Mouse Buttons Pressed: " + JSON.stringify(inputs.Mouse.returnPressedButtons()), 10, 48);
-        this.drawText(`Gamepad LS: [${Math.round(inputs.Gamepad.LeftStick._x * 100) / 100}, ${Math.round(inputs.Gamepad.LeftStick._y * 100) / 100} | RS: [${Math.round(inputs.Gamepad.RightStick._x * 100) / 100}, ${Math.round(inputs.Gamepad.RightStick._y * 100) / 100}] | LT: ${Math.round(inputs.Gamepad.LeftTrigger * 100) / 100} | RT: ${Math.round(inputs.Gamepad.RightTrigger * 100) / 100}`, 10, 64);
-        this.drawText(`Gamepad Buttons Pressed: ${inputs.Gamepad.getButtonsPressed()}`, 10, 80);
-        this.drawText(`Dpad L: ${inputs.Gamepad.Dpad._left} R: ${inputs.Gamepad.Dpad._right} U: ${inputs.Gamepad.Dpad._up} D: ${inputs.Gamepad.Dpad._down}`, 10, 96)
-    }    
     // Vector Graphics!
     this.drawLine = function (p1, p2, color = "Red", width = 1) {
         this.Context.beginPath()
         this.Context.lineWidth = width
         this.Context.strokeStyle = color
 
-        this.Context.moveTo(p1[0], p1[1])
-        this.Context.lineTo(p2[0], p2[1])
+        this.Context.moveTo(p1.x, p1.y)
+        this.Context.lineTo(p2.x, p2.y)
 
         this.Context.stroke()
     }
     this.drawVertices = function (vertices, fillColor = "Blue", borderColor = false, borderWidth = 1, closed = true) {
         this.Context.beginPath()
-        this.Context.moveTo(vertices[0][0], vertices[0][1])
+        this.Context.moveTo(vertices[0].x, vertices[0].y)
         for (var v = 1; v < vertices.length; v++) {
-            let [x, y] = vertices[v]
-            this.Context.lineTo(x, y)
+            this.Context.lineTo(vertices[v].x, vertices[v].y)
         }
         if (closed) {
             this.Context.closePath()

@@ -1,7 +1,7 @@
-Kii.Mouse = function () {
+Kii.Engine.Mouse = function () {
     // Where the mouse is on the canvas
-    this._x = 0;
-    this._y = 0;
+    this.x = 0;
+    this.y = 0;
     // This stores information on which buttons are currently pressed
     this.Held = [
         false, false, false
@@ -17,16 +17,16 @@ Kii.Mouse = function () {
     ],
     // Returns an array [x, y] of where the mouse moved to
     this.track = function (mouse) {
-        this._x = mouse.offsetX;
-        this._y = mouse.offsetY;
+        this.x = mouse.offsetX;
+        this.y = mouse.offsetY;
 
-        return ["Mouse Move", [this._x, this._y]];
+        return ["Mouse Move", [this.x, this.y]];
     };
     // Returns the name of the button that's been pressed
     this.press = function (mouse) {
         this.Held[mouse] = true;
-        this.mouseDownLocation[mouse] = [this._x, this._y];
-        return ["Mouse Press", [this.MouseCodes[mouse], this._x, this._y]];
+        this.mouseDownLocation[mouse] = [this.x, this.y];
+        return ["Mouse Press", [this.MouseCodes[mouse], this.x, this.y]];
     }
     // Returns the name of the button that's been released, as well as if it was a click or not
     this.release = function (mouse) {
@@ -36,13 +36,17 @@ Kii.Mouse = function () {
         // Wipe the previous coords of the mouse down event
         this.mouseDownLocation[mouse] = [0,0]
 
-        if (this._x == coords[0] && this._y == coords[1]) {
-            return ["Mouse Click", [this.MouseCodes[mouse], this._x, this._y]];
+        if (this.x == coords[0] && this.y == coords[1]) {
+            return ["Mouse Click", [this.MouseCodes[mouse], this.x, this.y]];
         } else {
-            return ["Mouse Up", [this.MouseCodes[mouse], this._x, this._y]];
+            return ["Mouse Up", [this.MouseCodes[mouse], this.x, this.y]];
         }
     }
-    // Returns a boolean depending on if the button is pressed.
+
+    // Returns the corresponding boolean depending on 
+    // whether or not the button pressed.
+    //
+    // fn (buttonName: Kii.Enums.MouseCode) -> boolean
     this.checkButton = function (buttonName) {
         let index = null;
         for (var i = 0; i < this.MouseCodes.length; i++) {
@@ -56,12 +60,17 @@ Kii.Mouse = function () {
         }
         console.log("Check the MouseCode Enum, the Button name you used doesn't exist!");
     }
-    // Returns an array [x, y] of the current mouse position
+    // Returns a Kii.Math.Vector.Vector of the mouse location
+    //
+    // fn () -> Vector
     this.getCursorLocation = function () {
-        return [this._x, this._y]
+        return new Kii.Math.Vector.Vector(this.x, this.y)
     }
-    // Return an array of all pressed button names
-    this.returnPressedButtons = function () {
+    // Return an array of all pressed buttons
+    // corresponding to Kii.Enums.MouseCode
+    // 
+    // fn () -> [MouseCode]
+    this.getPressedButtons = function () {
         let list = [];
         for (var x = 0; x < 3; x++) {
             if (this.Held[x]) {
@@ -71,7 +80,7 @@ Kii.Mouse = function () {
         return list;
     }
     // Setting up the mouse
-    this.initialize = function (handleInput, display) {
+    this.initialize = function (display, handleInput) {
         handleInput = handleInput || function () { }
         // Transfering this because idk how to do it otherwise
         let self = this
