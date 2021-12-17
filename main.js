@@ -1,6 +1,6 @@
 var Kii = {
     _author: "Kathrine Lemet",
-    _version: 'alpha_2.0.0',
+    _version: 'alpha_2.1.1',
     _description: "Lightweight 2D engine for JS/HTML5",
 
     Engine: {},
@@ -302,8 +302,10 @@ var Kii = {
         }
     },
 
-    initialize: function (display, fps, update, input) {
+    initialize: function (display, fps, init, update, input) {
         Object.freeze(this.Enums)
+
+        init   = init   || function () { console.log("Init") }
 
         input  = input  || function (x, y) { }
 
@@ -324,11 +326,12 @@ var Kii = {
             Kii.Graphics.debugVectorOverlay()
         }
 
+        init()
+
         // Event Loop
         setInterval(() => {
             Kii.Gamepad.update()
             update(1)
         }, 1000 / fps)        
     }
-
 }
