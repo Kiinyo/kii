@@ -9,6 +9,39 @@ Kii.Engine.Graphics = function (display) {
     this.clearScreen = function () {
         this.Context.clearRect(0,0, this.Display.width, this.Display.height);
     }
+    // No Anti-Aliasing
+    //
+    // fn (bool: boolean)
+    this.pixelMode = function (bool) {
+        this.Context.imageSmoothingEnabled = !bool
+    }
+    // Loads an image that can be later drawn with
+    // the drawImg function
+    // fn (src: string, name: string)
+    this.loadImg = function (src, name) {
+        console.log(`Loading Image "${name}" from "${src}"...`)
+        let img = new Image()
+        img.src = src
+        this.Images[name] = img
+        console.log(`"${name}" from "${src}" loaded successfully!`)
+    }
+    // Draws an image to the screen
+    this.drawImg = function (image, x, y, w, h, sx, sy, sw, sh) {
+        if (!this.Images[image]) {
+            console.log(`ERROR: ${image} isn't a valid image name!`)
+            console.log(`For more information, use Kii.Graphics.listImages()`)
+            return
+        }
+        let img = this.Images[`${image}`]
+        this.Context.drawImage(img, sx, sy, sw, sh, x, y, w, h)
+    }
+    // Lists all the loaded images currently
+    // fn ()
+    this.listImages = function () {
+        for (const img in this.Images) {
+            console.log(`Image: ${img}`)
+        }
+    }
     // Loads a font at a given location relative to
     // the index.html file and assigns it a name to
     // be referenced later in the drawText function
