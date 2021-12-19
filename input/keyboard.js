@@ -67,7 +67,7 @@ Kii.Engine.Keyboard = function () {
     this.checkKey = function (key) {
         let index = this.KeyCodes.indexOf(key);
         if (index > -1) {
-            return this.Held[keyCode]
+            return this.Held[index]
         } else {
             console.log ("Check the Keys Enum, the Key name you used doesn't exist!")
             return false;
